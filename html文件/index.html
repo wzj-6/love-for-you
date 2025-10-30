@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>just for you</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .welcome-container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 80%;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.6s ease;
+        }
+
+        .welcome-container.hidden {
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
+        }
+
+        .welcome-subtitle {
+            font-size: 1em;
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .surprise-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1em;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .surprise-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .floating-hearts {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .floating-heart {
+            position: absolute;
+            font-size: 1em;
+            opacity: 0.2;
+            animation: float 5s infinite ease-in-out;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-15px) rotate(180deg);
+            }
+        }
+
+        /* 隐藏的彩色页面 */
+        .colorful-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ffafbd, #ffc3a0, #ffd8cb);
+            z-index: 1000;
+            overflow: hidden;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+        }
+
+        .colorful-container.show {
+            opacity: 1;
+            display: block;
+        }
+
+        .colorful-header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .colorful-title {
+            color: white;
+            font-size: 2em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .message-grid {
+            position: relative;
+            width: 100%;
+            height: calc(100vh - 120px);
+            overflow: hidden;
+        }
+
+        .message {
+            position: absolute;
+            border-radius: 15px;
+            padding: 10px 15px;
+            font-size: 14px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            max-width: 150px;
+            word-wrap: break-word;
+            text-align: center;
+            font-weight: 500;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            opacity: 0;
+            transform: scale(0.5) rotate(-10deg);
+            transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .message.visible {
+            opacity: 1;
+            transform: scale(1) rotate(0deg);
+        }
+
+        .message-content {
+            opacity: 0;
+            transition: opacity 0.3s ease 0.3s;
+        }
+
+        .message.visible .message-content {
+            opacity: 1;
+        }
+
+        .message:hover {
+            transform: scale(1.15) rotate(2deg) !important;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .signature {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            color: white;
+            font-size: 1.1em;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            font-style: italic;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+            z-index: 1001;
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            z-index: 1002;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.5s ease;
+        }
+
+        .back-btn.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 返回按钮提示动画 */
+        .back-btn-pulse {
+            animation: pulseAnimation 2s infinite;
+        }
+
+        @keyframes pulseAnimation {
+            0% {
+                box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 15px rgba(102, 126, 234, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+            }
+        }
+
+        /* 提示文字样式 */
+        .hint-text {
+            position: fixed;
+            top: 60px;
+            right: 50%;
+            transform: translateX(50%);
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 1em;
+            z-index: 1003;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .hint-text.show {
+            opacity: 1;
+        }
+
+        @media (max-width: 700px) {
+            .welcome-container {
+                padding: 30px 20px;
+                margin: 20px;
+            }
+
+            .colorful-title {
+                font-size: 1.5em;
+            }
+
+            .message {
+                font-size: 12px;
+                padding: 8px 12px;
+                max-width: 120px;
+            }
+
+            .signature {
+                font-size: 0.9em;
+                padding: 6px 12px;
+                bottom: 10px;
+                right: 10px;
+            }
+
+            .back-btn {
+                top: 10px;
+                right: 10px;
+            }
+
+            .hint-text {
+                top: 50px;
+                font-size: 0.9em;
+                padding: 8px 15px;
+            }
+        }
+
+        /* 烟花动画样式 */
+        .firework {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: explode 1.5s ease-out forwards;
+        }
+
+        @keyframes explode {
+            0% {
+                transform: translate(0, 0) scale(0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* 感谢页面样式 */
+        .thank-you-page {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #83a4d4, #b6fbff);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .thank-you-page.show {
+            opacity: 1;
+            display: flex;
+        }
+
+        .thank-you-title {
+            font-size: 2.2em;
+            color: white;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .thank-you-message {
+            font-size: 1.2em;
+            color: white;
+            max-width: 500px;
+            line-height: 1.6;
+            background: rgba(0, 0, 0, 0.15);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(8px);
+            margin-bottom: 30px;
+            animation: floatUp 1s ease-out;
+        }
+
+        @keyframes floatUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .back-to-home-btn {
+            background: linear-gradient(45deg, #83a4d4, #b6fbff);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 20px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            animation: floatDown 1s ease-out 0.5s both;
+        }
+
+        @keyframes floatDown {
+            from {
+                transform: translateY(-30px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .back-to-home-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 浮动心形背景 -->
+    <div class="floating-hearts" id="floatingHearts"></div>
+
+    <!-- 欢迎页面 -->
+    <div class="welcome-container" id="welcomePage">
+        <p class="welcome-subtitle">
+            有一些话想对你说<br>
+        </p>
+        <button class="surprise-btn" onclick="showColorfulPage()">查看</button>
+    </div>
+
+    <!-- 彩色页面 -->
+    <div class="colorful-container" id="colorfulPage">
+        <div class="colorful-header">
+            <h1 class="colorful-title">💕 送给爱逛街的小女孩 💕</h1>
+        </div>
+
+        <div class="message-grid" id="messageGrid">
+            <!-- Messages will be positioned by JavaScript -->
+        </div>
+
+        <p class="signature" id="signature">--怕冷的小男孩</p>
+        <button class="back-btn" id="backBtn" onclick="triggerFireworksAndShowThankYou()">返回</button>
+        <!-- 提示文字 -->
+        <div class="hint-text" id="hintText">所有消息已显示完毕，点击右上角返回按钮有惊喜哦</div>
+    </div>
+
+    <!-- 感谢页面 -->
+    <div class="thank-you-page" id="thankYouPage">
+        <h2 class="thank-you-title">谢谢你看到这里 ❤️</h2>
+        <p class="thank-you-message">
+            我们慢一点，久一点<br>
+            深深的话浅浅的说，长长的路慢慢的走<br>
+            我会一直爱你，一直一直爱你
+        </p>
+        <button class="back-to-home-btn" onclick="showWelcomePage()">回到首页</button>
+    </div>
+
+    <script>
+        // 优化后的关怀信息数组
+        const caringMessages = [
+            "宝宝记得喝水哦", "宝宝要开心", "宝宝要按时吃饭", "宝宝要早点休息",
+            "宝宝要自信", "宝宝要快乐", "宝宝要注意保暖", "宝宝要照顾好自己",
+            "宝宝你最美", "宝宝是最可爱的", "宝宝我爱你", "宝宝想你了", "宝宝要微笑",
+            "宝宝要健康", "宝宝要幸福", "宝宝要勇敢", "宝宝要坚强",
+            "宝宝要温柔", "宝宝要善良", "宝宝要聪明", "宝宝要可爱",
+            "宝宝要美丽", "宝宝要阳光", "宝宝要乐观", "宝宝要积极",
+            "宝宝要努力", "宝宝要加油", "宝宝要开心每一天", "宝宝要笑口常开",
+            "宝宝要健健康康", "宝宝要平平安安", "宝宝要快快乐乐", "宝宝要甜甜蜜蜜",
+            "宝宝要美美哒",
+            "宝宝是我的唯一", "宝宝是最珍贵的", "宝宝是最特别的", "宝宝是最重要的",
+            "宝宝是天使",
+            "祝你被宠爱", "祝你被呵护", "祝你被珍惜", "祝你被保护",
+            "祝你被理解", "祝你被支持", "祝你被鼓励", "祝你被信任",
+            "祝你被陪伴", "祝你被关心", "祝你被牵挂", "祝你被思念",
+            "祝你被祝福", "祝你被疼爱", "祝你被守护", "祝你被温暖",
+            "祝你被包容", "祝你被体谅", "祝你被欣赏", "祝你被赞美",
+            "祝你被尊重", "祝你被重视", "祝你被需要", "祝你被依赖",
+            "祝你被信任", "祝你被依靠", "祝你被支持", "祝你被鼓励",
+            "祝你被理解", "祝你被包容", "祝你被疼爱", "祝你被呵护",
+            "祝你被关心", "祝你被照顾", "祝你被保护", "祝你被守护",
+            "祝你被陪伴", "祝你被倾听", "祝你被安慰", "祝你被鼓励",
+            "祝你被赞美", "祝你被欣赏", "祝你被尊重", "祝你被重视",
+            "祝你被需要", "祝你被依赖", "祝你被信任", "祝你被依靠",
+            "祝你被支持", "祝你被理解", "祝你被包容", "祝你被体谅",
+            "祝你被疼爱", "祝你被呵护", "祝你被关心", "祝你被照顾",
+            "祝你被保护", "祝你被守护", "祝你被陪伴", "祝你被倾听",
+            "祝你被安慰", "祝你被鼓励", "祝你被赞美", "祝你被欣赏",
+            "祝你被尊重", "祝你被重视", "祝你被需要", "祝你被依赖",
+            "祝你被信任", "祝你被依靠", "祝你被支持", "祝你被理解",
+            "祝你被包容", "祝你被体凉", "祝你被疼爱", "祝你被呵护",
+            "祝你被关心", "祝你被照顾", "祝你被保护", "祝你被守护",
+            "宝宝要保持笑容", "宝宝要相信自己", "宝宝要勇敢追梦", "宝宝要爱护身体",
+            "宝宝要保持美丽", "宝宝要散发魅力", "宝宝要展现才华", "宝宝要追求幸福",
+            "宝宝要珍惜时光", "宝宝要享受生活", "宝宝要热爱世界", "宝宝要传播温暖",
+            "宝宝要勇敢表达", "宝宝要真诚待人", "宝宝要善待自己", "宝宝要追求梦想",
+            "宝宝要保持初心", "宝宝要热爱生活", "宝宝要享受当下", "宝宝要期待未来",
+            "宝宝要相信奇迹", "宝宝要创造美好", "宝宝要传递快乐", "宝宝要收获幸福",
+            "宝宝要拥抱变化", "宝宝要迎接挑战", "宝宝要享受成功", "宝宝要珍惜拥有"
+        ];
+
+        // 清新颜色数组
+        const colors = [
+            '#FF9AA2', '#FFB7B2', '#FFDAC1', '#E2F0CB', '#B5EAD7',
+            '#C7CEEA', '#F8B195', '#F67280', '#C06C84', '#A8E6CE',
+            '#D6A1A1', '#99B898', '#FECEAB', '#FF847C', '#E84A5F',
+            '#FFD6A5', '#FFA07A', '#98FB98', '#DDA0DD', '#F0E68C'
+        ];
+
+        // 顺序显示消息 - 智能加速（前60个100ms，之后加速到70ms）
+        function showMessagesSequentially() {
+            const initialDelay = 100; // 初始延迟100ms
+            const minDelay = 40;      // 最小延迟70ms
+            const accelerationStart = 30; // 从第60个开始加速
+            const grid = document.getElementById('messageGrid');
+            const containerWidth = grid.offsetWidth;
+            const containerHeight = grid.offsetHeight;
+
+            caringMessages.forEach((message, index) => {
+                let delay;
+                if (index < accelerationStart) {
+                    // 前60个保持100ms延迟
+                    delay = index * initialDelay;
+                } else {
+                    // 之后逐步加速，但不低于70ms
+                    delay = 0;
+                    for (let i = 0; i <= index; i++) {
+                        if (i < accelerationStart) {
+                            delay += initialDelay;
+                        } else {
+                            const currentDelay = Math.max(minDelay, initialDelay - (i - accelerationStart) * 1.2);
+                            delay += currentDelay;
+                        }
+                    }
+                }
+
+                setTimeout(() => {
+                    // 创建消息元素
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'message';
+
+                    // 随机位置
+                    const left = Math.random() * (containerWidth - 160);
+                    const top = Math.random() * (containerHeight - 50);
+
+                    // 随机颜色
+                    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+                    messageDiv.style.left = left + 'px';
+                    messageDiv.style.top = top + 'px';
+                    messageDiv.style.background = randomColor;
+
+                    // 创建消息内容容器
+                    const contentDiv = document.createElement('div');
+                    contentDiv.className = 'message-content';
+                    contentDiv.textContent = message;
+
+                    messageDiv.appendChild(contentDiv);
+
+                    // 添加点击效果
+                    messageDiv.addEventListener('click', function () {
+                        this.style.transform = 'scale(1.2) rotate(5deg)';
+                        this.style.boxShadow = '0 8px 25px rgba(0,0,0,0.3)';
+                        this.style.zIndex = '1001';
+
+                        setTimeout(() => {
+                            this.style.transform = 'scale(1) rotate(0deg)';
+                            this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                            this.style.zIndex = '';
+                        }, 300);
+                    });
+
+                    grid.appendChild(messageDiv);
+
+                    // 触发显示动画
+                    setTimeout(() => {
+                        messageDiv.classList.add('visible');
+                    }, 10); // 小延迟确保DOM渲染
+                }, delay);
+            });
+
+            // 计算总延迟时间
+            let totalDelay = 0;
+            for (let i = 0; i < caringMessages.length; i++) {
+                if (i < accelerationStart) {
+                    totalDelay += initialDelay;
+                } else {
+                    const currentDelay = Math.max(minDelay, initialDelay - (i - accelerationStart) * 1.2);
+                    totalDelay += currentDelay;
+                }
+            }
+
+            // 返回按钮在所有消息显示后出现
+            setTimeout(() => {
+                document.getElementById('backBtn').classList.add('show');
+
+                // 添加脉冲动画效果
+                document.getElementById('backBtn').classList.add('back-btn-pulse');
+
+                // 显示提示文字
+                setTimeout(() => {
+                    document.getElementById('hintText').classList.add('show');
+                }, 500);
+            }, totalDelay + 800);
+        }
+
+
+        // 创建浮动心形背景
+        function createFloatingHearts() {
+            const container = document.getElementById('floatingHearts');
+            for (let i = 0; i < 20; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'floating-heart';
+                heart.innerHTML = '💖';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.top = Math.random() * 100 + 'vh';
+                heart.style.animationDelay = Math.random() * 6 + 's';
+                heart.style.fontSize = (Math.random() * 15 + 12) + 'px';
+                container.appendChild(heart);
+            }
+        }
+
+        // 显示彩色页面
+        function showColorfulPage() {
+            const welcomePage = document.getElementById('welcomePage');
+            welcomePage.classList.add('hidden');
+
+            const colorfulPage = document.getElementById('colorfulPage');
+            colorfulPage.style.display = 'block';
+            setTimeout(() => {
+                colorfulPage.classList.add('show');
+                showMessagesSequentially();
+            }, 50);
+        }
+
+        // 显示欢迎页面
+        function showWelcomePage() {
+            // 隐藏感谢页面
+            const thankYouPage = document.getElementById('thankYouPage');
+            thankYouPage.classList.remove('show');
+            setTimeout(() => {
+                thankYouPage.style.display = 'none';
+            }, 800);
+
+            const colorfulPage = document.getElementById('colorfulPage');
+            colorfulPage.classList.remove('show');
+
+            setTimeout(() => {
+                colorfulPage.style.display = 'none';
+                const welcomePage = document.getElementById('welcomePage');
+                welcomePage.classList.remove('hidden');
+            }, 600);
+        }
+
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function () {
+            createFloatingHearts();
+        });
+
+        // 烟花动画函数
+        function triggerFireworks() {
+            const fireworksContainer = document.body;
+            const particleCount = 100; // 烟花粒子数量
+
+            for (let i = 0; i < particleCount; i++) {
+                const firework = document.createElement('div');
+                firework.classList.add('firework');
+
+                // 随机颜色
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                firework.style.backgroundColor = color;
+
+                // 随机位置
+                const startX = window.innerWidth / 2;
+                const startY = window.innerHeight / 2;
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 50 + Math.random() * 200;
+                const endX = Math.cos(angle) * distance;
+                const endY = Math.sin(angle) * distance;
+
+                // 设置CSS变量
+                firework.style.setProperty('--tx', endX + 'px');
+                firework.style.setProperty('--ty', endY + 'px');
+
+                // 设置初始位置
+                firework.style.left = startX + 'px';
+                firework.style.top = startY + 'px';
+
+                fireworksContainer.appendChild(firework);
+
+                // 动画结束后移除元素
+                setTimeout(() => {
+                    firework.remove();
+                }, 1500);
+            }
+        }
+
+        // 触发烟花并显示感谢页面
+        function triggerFireworksAndShowThankYou() {
+            // 移除返回按钮的脉冲动画和提示文字
+            document.getElementById('backBtn').classList.remove('back-btn-pulse');
+            document.getElementById('hintText').classList.remove('show');
+
+            // 隐藏彩色页面
+            const colorfulPage = document.getElementById('colorfulPage');
+            colorfulPage.classList.remove('show');
+
+            setTimeout(() => {
+                colorfulPage.style.display = 'none';
+
+                // 触发烟花动画
+                triggerFireworks();
+
+                // 1.5秒后显示感谢页面
+                setTimeout(() => {
+                    const thankYouPage = document.getElementById('thankYouPage');
+                    thankYouPage.style.display = 'flex';
+                    setTimeout(() => {
+                        thankYouPage.classList.add('show');
+                    }, 50);
+                }, 1500);
+            }, 600);
+        }
+    </script>
+</body>
+
+</html>
