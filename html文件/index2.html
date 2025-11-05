@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>love for you</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		html,
+		body {
+			height: 100%;
+			background: #000;
+			/* 纯黑背景 */
+			overflow: hidden;
+			font-family: "Microsoft YaHei", sans-serif;
+		}
+
+		.snowflake {
+			position: absolute;
+			color: white;
+			font-size: 10px;
+			opacity: 0.8;
+			pointer-events: none;
+			user-select: none;
+			top: -20px;
+			animation: fall linear forwards;
+		}
+
+		@keyframes fall {
+			to {
+				transform: translateY(105vh);
+			}
+		}
+
+		#intro {
+			position: fixed;
+			inset: 0;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			background: rgba(0, 0, 0, 0.9);
+			color: #ff69b4;
+			z-index: 10;
+			opacity: 1;
+			transition: opacity 1s ease;
+			text-align: center;
+		}
+
+		#intro h1 {
+			font-size: 2.8rem;
+			margin-bottom: 30px;
+			text-shadow: 0 0 15px rgba(255, 105, 180, 0.8);
+			line-height: 1.3;
+			letter-spacing: 4px;
+		}
+
+		#start-btn {
+			padding: 14px 40px;
+			font-size: 1.2rem;
+			background: linear-gradient(45deg, #ff69b4, #ff1493);
+			color: white;
+			border: none;
+			border-radius: 50px;
+			cursor: pointer;
+			transition: all 0.3s;
+			box-shadow: 0 0 20px rgba(255, 105, 180, 0.5);
+			font-weight: bold;
+			letter-spacing: 2px;
+		}
+
+		#start-btn:hover {
+			transform: scale(1.08);
+			box-shadow: 0 0 30px rgba(255, 105, 180, 0.8);
+		}
+
+		#main-content {
+			opacity: 0;
+			transition: opacity 1.2s ease;
+			height: 100vh;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			position: relative;
+		}
+
+		.container {
+			color: #ff69b4;
+			font-size: 2.5rem;
+			font-weight: bold;
+			text-shadow: 0 0 12px rgba(255, 105, 180, 0.7);
+			margin-bottom: 30px;
+			letter-spacing: 6px;
+			text-align: center;
+		}
+
+		.middle {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			width: 100%;
+			height: 70vh;
+		}
+
+		/* ✅ 关键：强制放大图片，使用 transform */
+		img {
+			width: 200px;
+			/* 设置宽度 */
+			height: auto;
+			image-rendering: pixelated;
+			/* 保持像素感，不模糊 */
+			transform: scale(4) !important;
+			/* 放大 2 倍 */
+			transform-origin: center;
+			/* 可选：添加轻微动画 */
+			animation: pulse 2s infinite alternate;
+		}
+
+		@keyframes pulse {
+			from {
+				transform: scale(1);
+			}
+
+			to {
+				transform: scale(1.2);
+			}
+		}
+	</style>
+</head>
+
+<body>
+
+	<div id="snowflakes"></div>
+
+	<div id="intro">
+		<h1>❤️ for you</h1>
+		<button id="start-btn">点击进入</button>
+	</div>
+
+	<div id="main-content">
+		<div class="container">love for you</div>
+		<div class="middle">
+			<img src="https://pic.imgdb.cn/item/642547f5a682492fcc15cd5d.gif" alt="爱心动画" />
+		</div>
+	</div>
+
+	<script>
+		const snowContainer = document.getElementById('snowflakes');
+		function createSnowflake() {
+			const flake = document.createElement('div');
+			flake.className = 'snowflake';
+			flake.textContent = '❄';
+			flake.style.left = Math.random() * 100 + '%';
+			flake.style.fontSize = (Math.random() * 12 + 8) + 'px';
+			flake.style.opacity = Math.random() * 0.5 + 0.3;
+			flake.style.animationDuration = (Math.random() * 3 + 2) + 's';
+			snowContainer.appendChild(flake);
+			setTimeout(() => flake.remove(), 6000);
+		}
+		setInterval(createSnowflake, 150);
+
+		document.getElementById('start-btn').addEventListener('click', () => {
+			document.getElementById('intro').style.opacity = '0';
+			setTimeout(() => {
+				document.getElementById('intro').style.display = 'none';
+				document.getElementById('main-content').style.opacity = '1';
+			}, 1000);
+		});
+	</script>
+</body>
+
+</html>
